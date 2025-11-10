@@ -1,4 +1,4 @@
 package com.pluralsight.doughliciouscheezzia.toppings;
 
-public class Topping {
+public abstract class Topping {
 }

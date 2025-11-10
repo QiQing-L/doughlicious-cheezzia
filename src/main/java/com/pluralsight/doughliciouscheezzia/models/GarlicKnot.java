@@ -1,4 +1,4 @@
 package com.pluralsight.doughliciouscheezzia.models;
 
-public class Drinks {
+public class GarlicKnot extends MenuItem {
 }

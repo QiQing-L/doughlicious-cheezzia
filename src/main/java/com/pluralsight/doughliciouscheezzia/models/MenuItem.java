@@ -1,4 +1,24 @@
 package com.pluralsight.doughliciouscheezzia.models;
 
-public class MenuItem {
+public abstract class MenuItem {
+    private String name;
+
+    public MenuItem(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return "MenuItem{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+
+    public abstract double calculatePrice();
+
+
 }
