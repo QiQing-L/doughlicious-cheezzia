@@ -12,10 +12,9 @@ public class Drink extends MenuItem {
     public double calculatePrice() {
 
         return switch (size) {
-            case "small" -> 2.00;
             case "medium" -> 2.50;
             case "large" -> 3.00;
-            default -> 0;
+            default -> 2.00;
         };
     }
 }
