@@ -1,6 +1,7 @@
-package com.pluralsight.doughliciouscheezzia.models;
+package com.pluralsight.doughliciouscheezzia.models.pizza;
 
-import com.pluralsight.doughliciouscheezzia.toppings.Topping;
+import com.pluralsight.doughliciouscheezzia.models.MenuItem;
+import com.pluralsight.doughliciouscheezzia.models.toppings.Topping;
 
 import java.util.List;
 
