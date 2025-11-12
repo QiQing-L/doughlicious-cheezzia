@@ -7,5 +7,5 @@ public abstract class Topping {
         this.name = name;
     }
 
-    public abstract double calculatePice();
+    public abstract double calculatePice(String size);
 }

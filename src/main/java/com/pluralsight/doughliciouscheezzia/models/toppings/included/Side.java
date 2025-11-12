@@ -9,7 +9,7 @@ public class Side extends Topping {
     }
 
     @Override
-    public double calculatePice() {
+    public double calculatePice(String size) {
         return 0;
     }
 }
