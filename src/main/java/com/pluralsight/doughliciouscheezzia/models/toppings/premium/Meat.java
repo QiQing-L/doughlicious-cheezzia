@@ -6,13 +6,17 @@ public class Meat extends PremiumTopping {
         super(name, size);
     }
 
+//    public Meat(String name) {
+//        super(name);
+//    }
+
     @Override
     public double calculatePice(String size) {
         if ((this.extraTopping)=true){
             return switch (size) {
                 case "12\"" -> 3.00;
                 case "16\"" -> 4.50;
-                default -> 1.50;
+                default -> 1.50; //default size 8".
             };
         } else return switch (size) {
             case "12\"" -> 2.00;

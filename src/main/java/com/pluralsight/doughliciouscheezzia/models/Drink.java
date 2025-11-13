@@ -19,8 +19,8 @@ public class Drink extends MenuItem {
     @Override
     public double calculatePrice() {
         return switch (size) {
-            case "medium" -> 2.50;
-            case "large" -> 3.00;
+            case "Medium" -> 2.50;
+            case "Large" -> 3.00;
             default -> 2.00;
         };
     }

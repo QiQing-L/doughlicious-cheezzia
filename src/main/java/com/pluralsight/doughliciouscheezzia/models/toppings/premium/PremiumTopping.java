@@ -12,6 +12,12 @@ public abstract class PremiumTopping extends Topping {
         this.extraTopping = false;
     }
 
+//    public PremiumTopping(String name) {
+//        super(name);
+//        this.size = "";
+//        this.extraTopping = false;
+//    }
+
     public String getSize() {
         return size;
     }
@@ -20,13 +26,13 @@ public abstract class PremiumTopping extends Topping {
         this.size = size;
     }
 
-    public boolean isExtraTopping() {
+    public boolean getExtraTopping() {
         return extraTopping;
     }
 
     public abstract double calculatePice(String size);
 
-    public void getExtraTopping(){
+    public void isExtraTopping(){
         this.extraTopping = true;
     }
 }
