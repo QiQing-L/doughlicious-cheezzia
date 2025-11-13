@@ -56,10 +56,10 @@ public class Pizza extends MenuItem {
         double basePrice = 0;
         double toppingPrice = 0;
          switch (size) {
-             case "12\"":
+             case "12":
                  basePrice = 12.00;
                  break;
-             case "16\"":
+             case "16":
                  basePrice = 16.50;
                  break;
              default:
