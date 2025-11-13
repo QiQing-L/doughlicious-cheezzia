@@ -31,12 +31,12 @@ public class Display {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        displayMenu();
+
 
     }
      /*
-        + main()
-        + loadMenu() : viod
-        + displayMenu() : void
+
         + homeScreen(scanner : Scanner) : void
         + orderScreen(scanner : Scanner) : void
         + createOrder(scanner : Scanner) : Order
@@ -133,36 +133,42 @@ public class Display {
         menu.add(drinks);
 
     }
-    public void displayMenu(){
-        System.out.println("\n=========== Menu ===========\n");
+    public static void displayMenu(){
+        System.out.println("\n            =========== Menu ===========            \n");
         StringBuilder menuDisplay = new StringBuilder();
-        menuDisplay.append("--- Pizza Pricing ---\n");
-        menuDisplay.append("Pizza Size:     8”  |   12”  |   16” \n");
-        menuDisplay.append("Pizza Prices: $8.50 | $12.00 | $16.50 \n");
-        menuDisplay.append("--------------------------------------\n");
-        menuDisplay.append("Regular Toppings, Sauces, and Sides are included at no extra charge. \n");
-        menuDisplay.append("Premium Toppings (Meats and Cheeses) are charged based on pizza size, per topping. \n");
-        menuDisplay.append("\n");
 
         // Pricing Table (using String.format for alignment)
         String headerFormat = "%-25s | %-6s | %-6s | %-6s\n";
-        String rowFormat    = "%-25s | %-6.2f | %-6.2f | %-6.2f\n";
+        String rowFormat    = "%-25s | $%-5.2f | $%-5.2f | $%-5.2f\n";
         String separator    = "--------------------------|--------|--------|--------\n";
+        String separator2    = "-----------------------------------------------------\n";
+
+        menuDisplay.append("------------------- Pizza Pricing -------------------\n");
+        menuDisplay.append(String.format(headerFormat, "Pizza Size", "8”", "12”", "16”"));
+        menuDisplay.append(String.format(rowFormat, "Pizza Price", 8.50, 12.00, 16.50));
+        menuDisplay.append(separator);
         //Topping Pricing Table
         menuDisplay.append(String.format(headerFormat, "Premium Topping", "8”", "12”", "16”"));
         menuDisplay.append(separator);
-        menuDisplay.append(String.format(rowFormat, "Meat Topping (Per Topping)", 1.00, 2.00, 3.00));
+        menuDisplay.append(String.format(rowFormat, "Meat Topping (Base)", 1.00, 2.00, 3.00));
         menuDisplay.append(String.format(rowFormat, "Extra Meat ", 0.50, 1.00, 1.50));
-        menuDisplay.append(String.format(rowFormat, "Cheese Topping (Per Topping)", 0.75, 1.50, 2.25));
+        menuDisplay.append(String.format(rowFormat, "Cheese Topping (Base)", 0.75, 1.50, 2.25));
         menuDisplay.append(String.format(rowFormat, "Extra Cheese ", 0.30, 0.60, 0.90));
         menuDisplay.append(separator);
+
+        menuDisplay.append("Regular Toppings, Sauces, and Sides are included at no extra charge. \n");
+        menuDisplay.append("Premium Toppings (Meats and Cheeses) are charged based on pizza size, per topping. \n");
+        menuDisplay.append("\n");
+        menuDisplay.append("Other Items\n");
+        menuDisplay.append(separator2);
         //Drinks Pricing
         menuDisplay.append(String.format(headerFormat,"Drink Size", "Small", "Medium", "large"));
+        menuDisplay.append(separator);
         menuDisplay.append(String.format(rowFormat,"Drink Price", 2.00, 2.50, 3.00));
-        menuDisplay.append(separator);
+        menuDisplay.append(separator2);
         //Garlic Knots Pricing
-        menuDisplay.append("Garlic Knots (set of 3): $1.50 ");
-        menuDisplay.append(separator);
+        menuDisplay.append("Garlic Knots (set of 3): $1.50 \n");
+        menuDisplay.append(separator2);
 
         System.out.println(menuDisplay);
 

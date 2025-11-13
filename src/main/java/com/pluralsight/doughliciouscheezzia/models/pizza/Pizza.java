@@ -35,12 +35,12 @@ public class Pizza extends MenuItem {
         this.crustType = crustType;
     }
 
-    public List<Topping> getTopping() {
-        return topping;
+    public List<Topping> getToppings() {
+        return toppings;
     }
 
-    public void setTopping(List<Topping> topping) {
-        this.topping = topping;
+    public void setTopping(List<Topping> toppings) {
+        this.toppings = toppings;
     }
 
     public boolean isStuffedCrust() {
