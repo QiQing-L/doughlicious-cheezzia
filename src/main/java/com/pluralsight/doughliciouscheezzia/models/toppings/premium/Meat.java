@@ -12,7 +12,7 @@ public class Meat extends PremiumTopping {
 
     @Override
     public double calculatePice(String size) {
-        if ((this.extraTopping)=true){
+        if ((isExtraTopping())){
             return switch (size) {
                 case "12" -> 3.00;
                 case "16" -> 4.50;

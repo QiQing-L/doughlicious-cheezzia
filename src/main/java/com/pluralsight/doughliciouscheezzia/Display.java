@@ -307,13 +307,20 @@ public class Display {
             // prompt user for pizza toppings:
             System.out.println(ICON_TOMATO + "Toppings: ");
 
-            for (int i = 0; i < premiumToppingMenu.get("meats").size(); i++) {
-                System.out.println((i+1)+ ") "+premiumToppingMenu.get("meats").get(i).getName());
-            }
+            displayPremiumToppingMenu("meats");
             String meatChoice = scanner.nextLine().trim();
             int meatInex = paresInt(meatChoice);
 
-            if (meatInex<premiumToppingMenu.get("meats").size())
+            if (meatInex < premiumToppingMenu.get("meats").size()){
+                toppings.add(premiumToppingMenu.get("meats").get(0));
+                System.out.println("Add extra " + premiumToppingMenu.get("meats").get(0).getName() + " ? " );
+                System.out.println("1) yes");
+                System.out.println("2) no");
+                String extraToppingChoice = scanner.nextLine().trim();
+                if (extraToppingChoice.equals("1")){
+                    premiumToppingMenu.get("meats").get(0).setExtraTopping();
+                }
+            }else System.out.println("Invalid choice! Please enter a number choice from above.");
 
             switch (meatChoice) {
                 case "1" -> toppings.add(premiumToppingMenu.get("meats").get(0));
@@ -332,6 +339,17 @@ public class Display {
 
         }
 
+    }
+
+    /**
+     * this method displays the premium toppings in the array list that's in the parameter,
+     * line by line with ascending numbers listed on the left of each premium toppings.
+     * @param premiumToppingList key for the premium topping array list used in the premiumToppingList HashMap.
+     */
+    public static void displayPremiumToppingMenu (String premiumToppingList){
+        for (int i = 0; i < premiumToppingMenu.get(premiumToppingList).size(); i++) {
+            System.out.println((i+1)+ ") "+premiumToppingMenu.get(premiumToppingList).get(i).getName());
+        }
     }
 
     public static void addDrink(Scanner scanner){
