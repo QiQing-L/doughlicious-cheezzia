@@ -750,12 +750,12 @@ public class Display {
 
             switch (choice) {
                 case "1":
-                    String receiptText = buildReceiptString(); // helper method
+                    String receiptText = buildReceiptString();
                 // Save the file
                     FileManager.createReceiptFile(receiptText);
                 // Clear the order and go back to the home screen
                     currentOrder = new Order(generateOrderId(orderCount++)); // Reset Order
-                    System.out.println(YELLOW2+"Returning to Home Screen..."+RESET);
+                    System.out.println(GREEN+"Receipt has been successfully created. Returning to Home Screen..."+RESET);
                     return;
 
                 case "0" :
@@ -879,6 +879,7 @@ public class Display {
 
     public static void cancelOrder(){
         currentOrder.getOrderItems().clear();
+        currentOrder = new Order(generateOrderId(orderCount++));
         System.out.println("Your order has been canceled. Thank you for dining with us!");
 
     }
