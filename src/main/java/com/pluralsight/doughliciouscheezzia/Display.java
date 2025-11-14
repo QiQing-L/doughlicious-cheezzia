@@ -603,7 +603,7 @@ public class Display {
         System.out.print("Your choice: ");
 
         String choice = scanner.nextLine().trim();
-        Pizza pizza = null;
+        Pizza pizza;
 
         switch (choice) {
             case "1":
@@ -621,10 +621,8 @@ public class Display {
                 return;
         }
 
-        if (pizza != null) {
-            // Allows customization and adds to the order
-            customizePizza(scanner, pizza);
-        }
+        // Allows customization and adds to the order
+        customizePizza(scanner, pizza);
     }
 
     /**
