@@ -8,7 +8,7 @@ The application features a robust menu structure capable of handling custom pizz
 and toppings (including premium and included types), as well as pre-defined signature pizzas, drinks, and side items like garlic knots. 
 It aims to solve the problem of manual order tracking by automating pricing calculation, including taxes, and generating a detailed receipt file for every transaction. 
 The intended users are the **customers, shop employees and managers**.
-![Class Diagram](path/to/your/class_diagram.png)
+![Class Diagram](ClassDiagramPizzaShopTransparent.png)
 
 ## User Stories
 

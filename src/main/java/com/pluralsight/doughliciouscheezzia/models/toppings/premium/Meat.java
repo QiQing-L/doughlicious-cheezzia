@@ -6,9 +6,6 @@ public class Meat extends PremiumTopping {
         super(name, size);
     }
 
-//    public Meat(String name) {
-//        super(name);
-//    }
 
     @Override
     public double calculatePice(String size) {

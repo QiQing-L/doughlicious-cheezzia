@@ -32,16 +32,9 @@ public class Pizza extends MenuItem {
         return crustType;
     }
 
-    public void setCrustType(String crustType) {
-        this.crustType = crustType;
-    }
 
     public List<Topping> getToppings() {
         return toppings;
-    }
-
-    public void setTopping(List<Topping> toppings) {
-        this.toppings = toppings;
     }
 
     public boolean isStuffedCrust() {

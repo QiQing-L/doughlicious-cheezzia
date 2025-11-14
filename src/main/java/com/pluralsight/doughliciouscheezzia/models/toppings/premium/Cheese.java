@@ -6,10 +6,6 @@ public class Cheese extends PremiumTopping {
         super(name, size);
     }
 
-//    public Cheese(String name) {
-//        super(name);
-//    }
-
     @Override
     public double calculatePice(String size) {
         if ((isExtraTopping())){

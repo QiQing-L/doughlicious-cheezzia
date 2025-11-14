@@ -17,7 +17,6 @@ public class Order {
         this.dateTime = currentOrderDateTime();
         this.orderID = orderID;
 
-
     }
 
     public List<MenuItem> getOrderItems() {
@@ -45,9 +44,9 @@ public class Order {
     @Override
     public String toString() {
         return "Order{" +
-                "dateTime='" + dateTime + '\'' +
-                ", orderItems=" + orderItems +
-                ", orderID='" + orderID + '\'' +
+                "dateTime:'" + dateTime + '\'' +
+                ", orderItems:" + orderItems +
+                ", orderID:'" + orderID + '\'' +
                 '}';
     }
 }

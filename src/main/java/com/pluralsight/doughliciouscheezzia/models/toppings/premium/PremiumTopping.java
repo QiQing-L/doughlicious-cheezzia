@@ -9,14 +9,7 @@ public abstract class PremiumTopping extends Topping {
     public PremiumTopping(String name, String size) {
         super(name);
         this.size = size;
-
     }
-
-//    public PremiumTopping(String name) {
-//        super(name);
-//        this.size = "";
-//        this.extraTopping = false;
-//    }
 
     public String getSize() {
         return size;
@@ -25,8 +18,6 @@ public abstract class PremiumTopping extends Topping {
     public void setSize(String size) {
         this.size = size;
     }
-
-
 
     public abstract double calculatePice(String size);
 
