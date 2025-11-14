@@ -24,7 +24,6 @@ import static com.pluralsight.doughliciouscheezzia.pos.Utility.paresInt;
 
 public class Display {
 
-
     /* -------------- Shared Data ------------------ */
     private static int orderCount = 1;
     private static Map<String,List<MenuItem>> menu = new HashMap<>();
@@ -34,7 +33,6 @@ public class Display {
     private static List<String> drinkSizes = new ArrayList<>();
     private static Order currentOrder = new Order(generateOrderId(orderCount));
     private static int pizzaCount = 1;
-
 
     /* -------------- text colors ------------------ */
     private static final String RESET = "\u001B[0m";
@@ -65,6 +63,7 @@ public class Display {
     private static final String welcomeLine = "\n"+ BOLD + YELLOW2 + "       "+ICON_TOMATO+ICON_PIZZA+" Welcome to " + RED2 + "Doughlicious Cheezzia" + YELLOW2 + "! "+ICON_TOMATO+ICON_PIZZA+"       " + RESET;
     private static final String welcomeLine2 = "\n"+ YELLOW + "       "+ICON_TOMATO+ICON_PIZZA+" Welcome to " + RED + "Doughlicious Cheezzia" + YELLOW + "! "+ICON_TOMATO+ICON_PIZZA+"       " + RESET;
 
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         loadMenu();
@@ -74,7 +73,6 @@ public class Display {
 
         scanner.close();
     }
-
 
     /**
      * this method adds all menu items and related sizes, to its perspective menu lists.
@@ -260,6 +258,9 @@ public class Display {
 
     }
 
+    /*
+    --------------- addCustomPizza related methods ----------------
+     */
     public static void addCustomPizza(Scanner scanner){
         boolean done = false;
         String crust = "";
@@ -267,7 +268,7 @@ public class Display {
         List<Topping> toppings = new ArrayList<>();
 
         while (!done) {
-            System.out.println("\n"+BOLD+ YELLOW+ "➕ Add Pizza " + ICON_PIZZA + RESET+"\n");
+            System.out.println("\n"+BOLD+ YELLOW+ "➕ Add Custom Pizza " + ICON_PIZZA + RESET+"\n");
             // prompt user for pizza crust type:
             crust = pizzaCrustPrompt(scanner,crust);
 
@@ -299,67 +300,6 @@ public class Display {
 
         }
 
-    }
-
-    public static void pizzaStuffedCrustPrompt(Scanner scanner, Pizza pizza){
-        boolean done = false;
-        while (!done){
-            System.out.println(BOLD + "\nWould you like the pizza with stuffed crust?" + RESET);
-            System.out.println("1) yes");
-            System.out.println("2) no");
-            String input = scanner.nextLine().trim();
-            switch (input){
-                case "1":
-                    pizza.setStuffedCrust(true);
-                    done =true;
-                    break;
-
-                case "2":
-                    pizza.setStuffedCrust(false);
-                    done=true;
-                    break;
-
-                default:
-                    System.out.println(RED+ "Invalid choice! Please enter a number choice from above."+RESET);
-                    break;
-            }
-
-        }
-
-    }
-    public static void pizzaSideToppingPrompt (Scanner scanner, List<Topping> toppings){
-        boolean done = false;
-        while (!done){
-            System.out.println(BOLD+ "\nAdd any sides (red pepper / Parmesan)?"+RESET);
-            System.out.println("1) yes");
-            System.out.println("2) no");
-            String sideInput = scanner.nextLine().trim();
-            switch (sideInput){
-                case "1":
-                    System.out.println("\n"+ICON_PEPPER+" Sides: \n");
-                    displayToppingMenu(includedToppingMenu,"sides");
-                    String sideChoice = scanner.nextLine().trim();
-                    int index = paresInt(sideChoice);
-
-                    if (index>= 0 && index < includedToppingMenu.get("sides").size()){
-                        toppings.add(includedToppingMenu.get("sides").get(index));
-                        System.out.println("successfully added "+ includedToppingMenu.get("sides").get(index).getName()+".");
-                        extraToppingPrompt(includedToppingMenu, index,"sides", scanner);
-                        done = true;
-                    }else System.out.println(RED+ "Invalid choice! Please enter a number choice from above."+RESET);
-                    break;
-
-                case "2":
-                    done = true;
-                    break;
-
-                default:
-                    System.out.println(RED + "Invalid choice! Please enter a number choice from above." + RESET);
-                    break;
-            }
-
-
-        }
     }
 
     public static String pizzaCrustPrompt (Scanner scanner, String crust){
@@ -398,7 +338,7 @@ public class Display {
     }
 
     public static String pizzaSizePrompt (Scanner scanner, String size){
-       boolean done = false;
+        boolean done = false;
         while (!done){
             System.out.println(BOLD+"\n"+ICON_MEMO+ "Pizza size: "+RESET);
             for (int i = 0; i < pizzaSizes.size(); i++) {
@@ -423,9 +363,21 @@ public class Display {
                     System.out.println(RED+"Invalid choice! Please enter 1, 2, or 3."+ RESET);
                     break;
             }
-       }
+        }
         return size;
 
+    }
+
+    /**
+     * this helper method displays the premium toppings in the array list that's in the parameter,
+     * line by line with ascending numbers listed on the left of each premium toppings.
+     * @param toppingList key of the premium topping array list used in the premiumToppingList HashMap.
+     * @param toppingMenu the name of the hashMap that holds the toppling list.
+     */
+    public static void displayToppingMenu (Map<String, List<Topping>> toppingMenu,String toppingList){
+        for (int i = 0; i < toppingMenu.get(toppingList).size(); i++) {
+            System.out.println( i + ") "+toppingMenu.get(toppingList).get(i).getName());
+        }
     }
 
     /**
@@ -545,15 +497,38 @@ public class Display {
         }
     }
 
-    /**
-     * this helper method displays the premium toppings in the array list that's in the parameter,
-     * line by line with ascending numbers listed on the left of each premium toppings.
-     * @param toppingList key of the premium topping array list used in the premiumToppingList HashMap.
-     * @param toppingMenu the name of the hashMap that holds the toppling list.
-     */
-    public static void displayToppingMenu (Map<String, List<Topping>> toppingMenu,String toppingList){
-        for (int i = 0; i < toppingMenu.get(toppingList).size(); i++) {
-            System.out.println( i + ") "+toppingMenu.get(toppingList).get(i).getName());
+    public static void pizzaSideToppingPrompt (Scanner scanner, List<Topping> toppings){
+        boolean done = false;
+        while (!done){
+            System.out.println(BOLD+ "\nAdd any sides (red pepper / Parmesan)?"+RESET);
+            System.out.println("1) yes");
+            System.out.println("2) no");
+            String sideInput = scanner.nextLine().trim();
+            switch (sideInput){
+                case "1":
+                    System.out.println("\n"+ICON_PEPPER+" Sides: \n");
+                    displayToppingMenu(includedToppingMenu,"sides");
+                    String sideChoice = scanner.nextLine().trim();
+                    int index = paresInt(sideChoice);
+
+                    if (index>= 0 && index < includedToppingMenu.get("sides").size()){
+                        toppings.add(includedToppingMenu.get("sides").get(index));
+                        System.out.println("successfully added "+ includedToppingMenu.get("sides").get(index).getName()+".");
+                        extraToppingPrompt(includedToppingMenu, index,"sides", scanner);
+                        done = true;
+                    }else System.out.println(RED+ "Invalid choice! Please enter a number choice from above."+RESET);
+                    break;
+
+                case "2":
+                    done = true;
+                    break;
+
+                default:
+                    System.out.println(RED + "Invalid choice! Please enter a number choice from above." + RESET);
+                    break;
+            }
+
+
         }
     }
 
@@ -588,6 +563,68 @@ public class Display {
 
         }
 
+    }
+
+    public static void pizzaStuffedCrustPrompt(Scanner scanner, Pizza pizza){
+        boolean done = false;
+        while (!done){
+            System.out.println(BOLD + "\nWould you like the pizza with stuffed crust?" + RESET);
+            System.out.println("1) yes");
+            System.out.println("2) no");
+            String input = scanner.nextLine().trim();
+            switch (input){
+                case "1":
+                    pizza.setStuffedCrust(true);
+                    done =true;
+                    break;
+
+                case "2":
+                    pizza.setStuffedCrust(false);
+                    done=true;
+                    break;
+
+                default:
+                    System.out.println(RED+ "Invalid choice! Please enter a number choice from above."+RESET);
+                    break;
+            }
+
+        }
+
+    }
+
+    /*
+    -------------------- Signature Pizza related Method ---------------
+     */
+    public static void addSignaturePizza(Scanner scanner) {
+        System.out.println("\n" + BOLD + "⭐ Signature Pizzas " + ICON_PIZZA + RESET + "\n");
+        System.out.println("1) Margherita Pizza (12\", Regular Crust)");
+        System.out.println("2) Veggie Pizza (8\", Regular Crust)");
+        System.out.println("0) Back to Order Menu");
+        System.out.print("Your choice: ");
+
+        String choice = scanner.nextLine().trim();
+        Pizza pizza = null;
+
+        switch (choice) {
+            case "1":
+                List<Topping> margheritaToppings = createSignatureToppings("Margherita", "12");
+                pizza = new MargheritaPizza(margheritaToppings);
+                break;
+            case "2":
+                List<Topping> veggieToppings = createSignatureToppings("Veggie", "8");
+                pizza = new VeggiePizza(veggieToppings);
+                break;
+            case "0":
+                return;
+            default:
+                System.out.println(RED + "Invalid choice." + RESET);
+                return;
+        }
+
+        if (pizza != null) {
+            // Allows customization and adds to the order
+            customizePizza(scanner, pizza);
+        }
     }
 
     /**
@@ -645,7 +682,6 @@ public class Display {
         return toppings;
     }
 
-
     /**
      * Creates a new instance of a Topping based on its current type and name.
      * This prevents multiple pizzas from sharing the same static Topping object.
@@ -668,38 +704,6 @@ public class Display {
         }
         // Default or base Topping, although your menu seems to use subclasses.
         return template;
-    }
-
-    public static void addSignaturePizza(Scanner scanner) {
-        System.out.println("\n" + BOLD + "⭐ Signature Pizzas " + ICON_PIZZA + RESET + "\n");
-        System.out.println("1) Margherita Pizza (12\", Regular Crust)");
-        System.out.println("2) Veggie Pizza (8\", Regular Crust)");
-        System.out.println("0) Back to Order Menu");
-        System.out.print("Your choice: ");
-
-        String choice = scanner.nextLine().trim();
-        Pizza pizza = null;
-
-        switch (choice) {
-            case "1":
-                List<Topping> margheritaToppings = createSignatureToppings("Margherita", "12");
-                pizza = new MargheritaPizza(margheritaToppings);
-                break;
-            case "2":
-                List<Topping> veggieToppings = createSignatureToppings("Veggie", "8");
-                pizza = new VeggiePizza(veggieToppings);
-                break;
-            case "0":
-                return;
-            default:
-                System.out.println(RED + "Invalid choice." + RESET);
-                return;
-        }
-
-        if (pizza != null) {
-            // Allows customization and adds to the order
-            customizePizza(scanner, pizza);
-        }
     }
 
     public static void customizePizza(Scanner scanner, Pizza pizza) {
@@ -890,6 +894,9 @@ public class Display {
         }
     }
 
+    /*
+    -----------------------  Drink and GarlicKnots methods -----------------
+     */
     public static void addDrink(Scanner scanner){
         boolean done = false;
         String size = "";
@@ -987,6 +994,9 @@ public class Display {
         }
     }
 
+    /*
+   ----------------------- checkOut / cancel Related methods -----------------
+    */
     public static void checkOut(Scanner scanner) {
 
         if (!isValidOrder()) {
@@ -1189,6 +1199,5 @@ public class Display {
         System.out.println("Your order has been canceled. Thank you for dining with us!");
 
     }
-
 
 }

@@ -68,11 +68,16 @@ Follow these steps to get your application running within IntelliJ IDEA:
 
 Include screenshots or GIFs that show your application in action. Use tools like [Giphy Capture](https://giphy.com/apps/giphycapture) to record a GIF of your application.
 
-![Application Screenshot](path/to/your/screenshot.png)
-![Application Screenshot](path/to/your/screenshot.png)
-![Application Screenshot](path/to/your/screenshot.png)
-![Application Screenshot](path/to/your/screenshot.png)
-![Application Screenshot](path/to/your/screenshot.png)
+![Menu Display Landing Page Application Screenshot](MenuDisplay.png)
+![Home Screen Application Screenshot](HomeScreen.png)
+![Order Screen Application Screenshot](OrderScreen.png)
+![Add Pizza with Error Application Screenshot](AddPizza.png)
+![Toppings Application Screenshot](Toppings.png)
+![Toppings Application Screenshot](Topping2.png)
+![Add Drink Application Screenshot](AddDrink.png)
+![Exit Application Screenshot](exit.png)
+![GarlicKnots Application Screenshot](GarlicKnots.png)
+![CheckOut Application Screenshot](CheckOut.png)
 
 ## Future Work
 
