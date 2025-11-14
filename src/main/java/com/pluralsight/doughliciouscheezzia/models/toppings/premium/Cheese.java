@@ -12,7 +12,7 @@ public class Cheese extends PremiumTopping {
 
     @Override
     public double calculatePice(String size) {
-        if ((this.extraTopping)=true){
+        if ((isExtraTopping())){
             return switch (size) {
                 case "12" -> 1.50 + 0.60;
                 case "16" -> 2.25 + 0.90;

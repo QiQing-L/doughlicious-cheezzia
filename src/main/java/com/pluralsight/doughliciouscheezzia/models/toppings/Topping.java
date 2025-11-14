@@ -22,4 +22,12 @@ public abstract class Topping {
     public boolean isExtraTopping() {
         return extraTopping;
     }
+
+    @Override
+    public String toString() {
+        return "Topping{" +
+                "name:'" + name + '\'' +
+                ", extraTopping:" + extraTopping +
+                '}';
+    }
 }
