@@ -53,6 +53,8 @@ public class Display {
     private static final String ICON_FLATBREAD ="\uD83E\uDED3"; //🫓
     private static final String ICON_CAULIFLOWER = "\uD83E\uDD66"; //🥦
     private static final String ICON_MEMO = "\uD83D\uDCDD"; //📝
+    private static final String ICON_PEPPER = "\uD83C\uDF36\uFE0F";//🌶️
+
 
     private static final String welcomeLine = "\n"+ BOLD + YELLOW2 + "       "+ICON_TOMATO+ICON_PIZZA+" Welcome to " + RED2 + "Doughlicious Cheezzia" + YELLOW2 + "! "+ICON_TOMATO+ICON_PIZZA+"       " + RESET;
     private static final String welcomeLine2 = "\n"+ YELLOW + "       "+ICON_TOMATO+ICON_PIZZA+" Welcome to " + RED + "Doughlicious Cheezzia" + YELLOW + "! "+ICON_TOMATO+ICON_PIZZA+"       " + RESET;
@@ -243,9 +245,10 @@ public class Display {
             System.out.print("Your choice: ");
 
             choice = scanner.nextLine().trim();
+            int pizzaCount = 1;
 
             switch (choice) {
-                case "1" -> addPizza(scanner);
+                case "1" -> addPizza(scanner,pizzaCount);
                 case "2" -> addDrink(scanner);
                 case "3" -> addGarlicKnots(scanner);
                 case "4" -> checkOut();
@@ -256,7 +259,7 @@ public class Display {
 
     }
 
-    public static void addPizza(Scanner scanner){
+    public static void addPizza(Scanner scanner, int pizzaCount){
         boolean done = false;
         String crust = "";
         String size = "";
@@ -293,7 +296,7 @@ public class Display {
             // prompt user for pizza size:
             System.out.println(ICON_MEMO+ "Pizza size: ");
             for (int i = 0; i < pizzaSizes.size(); i++) {
-                System.out.println((i+1)+ ") "+pizzaSizes.get(i));
+                System.out.println((i+1)+ ") "+pizzaSizes.get(i)+"\"");
             }
             String sizeChoice = scanner.nextLine().trim();
 
@@ -306,33 +309,148 @@ public class Display {
 
             // prompt user for pizza toppings:
             System.out.println(BOLD + "\n"+ICON_TOMATO + "Toppings: " +RESET);
+            int index = 0;
+            int counter = 0;
+            boolean moveOn =false;
+            //set limit to 5 toppings max;
+            while (counter < 6 && !moveOn){
+                System.out.println("Maximum of 5 toppings per pizza.");
+                System.out.println("Current number of toppings:"+counter+"\n");
+                System.out.println("1)"+ICON_MEAT+"Meat");
+                System.out.println("2)"+ICON_CHEESE+"Cheese");
+                System.out.println("3)"+ICON_TOMATO+"Regular Topping");
+                System.out.println("4)✅ Done Selecting Toppings ");
 
-            System.out.println("\n"+ICON_MEAT+"Meats: \n");
+                String toppingChoice = scanner.nextLine().trim();
 
-            displayPremiumToppingMenu("meats");
-            String meatChoice = scanner.nextLine().trim();
-            int index = paresInt(meatChoice);
+                switch (toppingChoice) {
+                    case "1":
+                        System.out.println("\n" + ICON_MEAT + "Meat: \n");
 
-            if (index <= premiumToppingMenu.get("meats").size()){
-                toppings.add(premiumToppingMenu.get("meats").get(index));
-                extraToppingPrompt(index,"meats", scanner);
+                        displayToppingMenu(premiumToppingMenu, "meats");
+                        String meatChoice = scanner.nextLine().trim();
+                        index = paresInt(meatChoice);
+
+                        if (index <= premiumToppingMenu.get("meats").size()) {
+                            toppings.add(premiumToppingMenu.get("meats").get(index));
+                            System.out.println("successfully added " + premiumToppingMenu.get("meats").get(index).getName() + ".");
+                            extraToppingPrompt(premiumToppingMenu, index, "meats", scanner);
+                        } else System.out.println("Invalid choice! Please enter a number choice from above.");
+
+                        counter++;
+                        break;
+
+                    case "2":
+                        System.out.println("\n" + ICON_CHEESE + "Cheese: \n");
+
+                        displayToppingMenu(premiumToppingMenu, "cheeses");
+                        String cheeseChoice = scanner.nextLine().trim();
+                        index = paresInt(cheeseChoice);
+
+                        if (index <= premiumToppingMenu.get("cheeses").size()) {
+                            toppings.add(premiumToppingMenu.get("cheeses").get(index));
+                            System.out.println("successfully added " + premiumToppingMenu.get("cheeses").get(index).getName() + ".");
+                            extraToppingPrompt(premiumToppingMenu, index, "cheeses", scanner);
+                        } else System.out.println("Invalid choice! Please enter a number choice from above.");
+
+                        counter++;
+                        break;
+
+                    case "3":
+                        System.out.println("\n" + ICON_TOMATO + "Regular Topping: \n");
+
+                        displayToppingMenu(includedToppingMenu, "regularToppings");
+                        String regularToppingsChoice = scanner.nextLine().trim();
+                        index = paresInt(regularToppingsChoice);
+
+                        if (index <= includedToppingMenu.get("regularToppings").size()) {
+                            toppings.add(includedToppingMenu.get("regularToppings").get(index));
+                            System.out.println("successfully added " + includedToppingMenu.get("regularToppings").get(index).getName() + ".");
+                            extraToppingPrompt(includedToppingMenu, index, "regularToppings", scanner);
+                        } else System.out.println("Invalid choice! Please enter a number choice from above.");
+
+                        counter++;
+                        break;
+
+                    case "4":
+                        moveOn = true;
+                        break;
+
+                    default:
+                        System.out.println("Invalid choice! Please enter 1, 2, 3 or 4.");
+                        break;
+                }
+
+            }
+
+            // prompt user for sauce selection:
+            System.out.println("\n🥫Select sauces: \n");
+
+            displayToppingMenu(includedToppingMenu,"sauces");
+            String saucesChoice = scanner.nextLine().trim();
+            index = paresInt(saucesChoice);
+
+            if (index <= includedToppingMenu.get("sauces").size()){
+                toppings.add(includedToppingMenu.get("sauces").get(index));
+                System.out.println("successfully added "+ includedToppingMenu.get("sauces").get(index).getName()+".");
+                extraToppingPrompt(includedToppingMenu, index,"sauces", scanner);
             }else System.out.println("Invalid choice! Please enter a number choice from above.");
 
-//            switch (meatChoice) {
-//                case "1" -> toppings.add(premiumToppingMenu.get("meats").get(0));
-//                case "2" -> toppings.add(premiumToppingMenu.get("meats").get(1));
-//                case "3" -> toppings.add(premiumToppingMenu.get("meats").get(2));
-//                default -> System.out.println("Invalid choice! Please enter a number choice.");
-//            }
+            //prompt user for optional sides:
+            System.out.println("Add any sides (red pepper / Parmesan)?");
+            System.out.println("1) yes");
+            System.out.println("2) no");
+            String sideInput = scanner.nextLine().trim();
+            switch (sideInput){
+                case "1":
+                    System.out.println("\n"+ICON_PEPPER+" Sides: \n");
+                    displayToppingMenu(includedToppingMenu,"sides");
+                    String sideChoice = scanner.nextLine().trim();
+                    index = paresInt(sideChoice);
 
+                    if (index <= includedToppingMenu.get("sides").size()){
+                        toppings.add(includedToppingMenu.get("sides").get(index));
+                        System.out.println("successfully added "+ includedToppingMenu.get("sides").get(index).getName()+".");
+                        extraToppingPrompt(includedToppingMenu, index,"sides", scanner);
+                    }else System.out.println("Invalid choice! Please enter a number choice from above.");
+                    break;
 
+                case "2":
+                    break;
 
+                default:
+                    System.out.println("Invalid choice! Please enter a number choice from above.");
+                    break;
+            }
+
+            String pizzaName = "pizza " + pizzaCount;
+            // for test:
+            System.out.println(pizzaName);
             Pizza pizza = new Pizza(size,crust,toppings);
+            pizza.setName(pizzaName);
+
+            System.out.println("Would you like the pizza with stuffed crust?");
+            System.out.println("1) yes");
+            System.out.println("2) no");
+            String input = scanner.nextLine().trim();
+            switch (input){
+                case "1":
+                    pizza.setStuffedCrust(true);
+                    break;
+
+                case "2":
+                    pizza.setStuffedCrust(false);
+                    break;
+
+                default:
+                    System.out.println("Invalid choice! Please enter a number choice from above.");
+                    break;
+            }
+
             // for test:
             System.out.println(pizza+pizza.getCrustType()+pizza.getSize()+pizza.getToppings());
-            //orderItems.add(new Pizza(size,crust,toppings);
+            orderItems.add(pizza);
             done = true;
-
 
         }
 
@@ -341,28 +459,30 @@ public class Display {
     /**
      * this helper method displays the premium toppings in the array list that's in the parameter,
      * line by line with ascending numbers listed on the left of each premium toppings.
-     * @param premiumToppingList key of the premium topping array list used in the premiumToppingList HashMap.
+     * @param toppingList key of the premium topping array list used in the premiumToppingList HashMap.
+     * @param toppingMenu the name of the hashMap that holds the toppling list.
      */
-    public static void displayPremiumToppingMenu (String premiumToppingList){
-        for (int i = 0; i < premiumToppingMenu.get(premiumToppingList).size(); i++) {
-            System.out.println( i + ") "+premiumToppingMenu.get(premiumToppingList).get(i).getName());
+    public static void displayToppingMenu (Map<String, List<Topping>> toppingMenu,String toppingList){
+        for (int i = 0; i < toppingMenu.get(toppingList).size(); i++) {
+            System.out.println( i + ") "+toppingMenu.get(toppingList).get(i).getName());
         }
     }
 
     /**
      * this helper method use to prompt the user for extra toppings, when a topping is selected.
      * @param index input from user that match the index number of the topping of the list in display
-     * @param premiumToppingList key of the premium topping array list used in the premiumToppingList HashMap.
+     * @param toppingList key of the premium topping array list used in the premiumToppingList HashMap.
+     * @param toppingMenu the name of the hashMap that holds the toppling list.
      * @param scanner
      */
-    public static void extraToppingPrompt (int index, String premiumToppingList, Scanner scanner){
-            System.out.println("Add extra " + premiumToppingMenu.get(premiumToppingList).get(index).getName() + "? " );
+    public static void extraToppingPrompt (Map<String, List<Topping>> toppingMenu,int index, String toppingList, Scanner scanner){
+            System.out.println("Add extra " + toppingMenu.get(toppingList).get(index).getName() + "? " );
             System.out.println("1) yes");
             System.out.println("2) no");
             String extraToppingChoice = scanner.nextLine().trim();
             if (extraToppingChoice.equals("1")){
-                premiumToppingMenu.get(premiumToppingList).get(index).setExtraTopping();
-                System.out.println("Added extra" + premiumToppingMenu.get(premiumToppingList).get(index).getName()+".");
+                toppingMenu.get(toppingList).get(index).setExtraTopping();
+                System.out.println("Added extra " + toppingMenu.get(toppingList).get(index).getName()+".");
             }
     }
 
