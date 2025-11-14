@@ -289,6 +289,21 @@ public class Display {
             pizza.setName(pizzaName);
 
             // prompt user for optional stuffed crust:
+            pizzaStuffedCrustPrompt(scanner,pizza);
+
+
+            // for test:
+            System.out.println(pizza+pizza.getCrustType()+pizza.getSize()+pizza.getToppings());
+            orderItems.add(pizza);
+            done = true;
+
+        }
+
+    }
+
+    public static void pizzaStuffedCrustPrompt(Scanner scanner, Pizza pizza){
+        boolean done = false;
+        while (!done){
             System.out.println(BOLD + "\nWould you like the pizza with stuffed crust?" + RESET);
             System.out.println("1) yes");
             System.out.println("2) no");
@@ -296,21 +311,18 @@ public class Display {
             switch (input){
                 case "1":
                     pizza.setStuffedCrust(true);
+                    done =true;
                     break;
 
                 case "2":
                     pizza.setStuffedCrust(false);
+                    done=true;
                     break;
 
                 default:
                     System.out.println(RED+ "Invalid choice! Please enter a number choice from above."+RESET);
                     break;
             }
-
-            // for test:
-            System.out.println(pizza+pizza.getCrustType()+pizza.getSize()+pizza.getToppings());
-            orderItems.add(pizza);
-            done = true;
 
         }
 
@@ -547,14 +559,29 @@ public class Display {
      * @param scanner
      */
     public static void extraToppingPrompt (Map<String, List<Topping>> toppingMenu,int index, String toppingList, Scanner scanner){
+        boolean moveOn =false;
+        while (!moveOn) {
             System.out.println("Add extra " + toppingMenu.get(toppingList).get(index).getName() + "? " );
             System.out.println("1) yes");
             System.out.println("2) no");
             String extraToppingChoice = scanner.nextLine().trim();
-            if (extraToppingChoice.equals("1")){
-                toppingMenu.get(toppingList).get(index).setExtraTopping();
-                System.out.println("Added extra " + toppingMenu.get(toppingList).get(index).getName()+".");
+            switch (extraToppingChoice){
+                case "1":
+                    toppingMenu.get(toppingList).get(index).setExtraTopping();
+                    System.out.println("Added extra " + toppingMenu.get(toppingList).get(index).getName()+".");
+
+                    moveOn=true;
+                    break;
+                case "2":
+                    moveOn=true;
+                    break;
+                default:
+                    System.out.println(RED+"Invalid choice! Please enter a number choice from above."+RESET);
+                    break;
             }
+
+        }
+
     }
 
     public static void addDrink(Scanner scanner){
