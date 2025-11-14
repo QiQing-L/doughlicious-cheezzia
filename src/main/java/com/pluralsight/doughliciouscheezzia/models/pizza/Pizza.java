@@ -97,10 +97,11 @@ public class Pizza extends MenuItem {
             crustDescription += " (Stuffed Crust)";
         }
 
-        String description = String.format(
+        String description = String.format("%s\n"+
                 "   - Size: %s-inch\n" +
                         "   - Crust: %s\n" +
                         "   - Toppings: %s\n",
+                this.getName(),
                 this.size,
                 crustDescription,
                 toppingNames.isEmpty() ? "None" : toppingNames);

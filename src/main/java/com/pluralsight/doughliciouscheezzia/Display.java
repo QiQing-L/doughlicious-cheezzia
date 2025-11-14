@@ -58,17 +58,9 @@ public class Display {
     private static final String ICON_CAULIFLOWER = "\uD83E\uDD66"; //🥦
     private static final String ICON_MEMO = "\uD83D\uDCDD"; //📝
     private static final String ICON_PEPPER = "\uD83C\uDF36\uFE0F";//🌶️
-
-
+    /* -------------- Headers ------------------ */
     private static final String welcomeLine = "\n"+ BOLD + YELLOW2 + "       "+ICON_TOMATO+ICON_PIZZA+" Welcome to " + RED2 + "Doughlicious Cheezzia" + YELLOW2 + "! "+ICON_TOMATO+ICON_PIZZA+"       " + RESET;
     private static final String welcomeLine2 = "\n"+ YELLOW + "       "+ICON_TOMATO+ICON_PIZZA+" Welcome to " + RED + "Doughlicious Cheezzia" + YELLOW + "! "+ICON_TOMATO+ICON_PIZZA+"       " + RESET;
-
-
-
-//    public Order createOrder(List<MenuItem> orderItems){
-//        this.currentOrder = new Order(orderItems);
-//        return currentOrder;
-//    }
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -78,7 +70,6 @@ public class Display {
         generateOrderId(orderCount);
 
         scanner.close();
-
     }
 
 
@@ -549,7 +540,6 @@ public class Display {
         }
     }
 
-
     /**
      * this helper method displays the premium toppings in the array list that's in the parameter,
      * line by line with ascending numbers listed on the left of each premium toppings.
@@ -691,7 +681,6 @@ public class Display {
 
     }
 
-
     public static void checkOut(Scanner scanner) {
 
         if (!isValidOrder()) {
@@ -766,7 +755,7 @@ public class Display {
                     FileManager.createReceiptFile(receiptText);
                 // Clear the order and go back to the home screen
                     currentOrder = new Order(generateOrderId(orderCount++)); // Reset Order
-                    System.out.println("Returning to Home Screen...");
+                    System.out.println(YELLOW2+"Returning to Home Screen..."+RESET);
                     return;
 
                 case "0" :
@@ -782,8 +771,76 @@ public class Display {
 
     }
 
+    /**
+     * Builds the complete formatted receipt text for saving to a file.
+     * This method is essentially a non-printing version of the order summary.
+     * @return The complete receipt as a single String.
+     */
+    public static String buildReceiptString() {
 
+        // Use StringBuilder to collect all lines of the receipt
+        StringBuilder receiptBuilder = new StringBuilder();
+        List<MenuItem> orderItems = currentOrder.getOrderItems();
 
+        // Set a constant width for the entire line (Name + Dots + Price)
+        final int LINE_WIDTH = 35;
+        double subTotal = 0.0;
+
+        //Header
+        receiptBuilder.append("\n" + BOLD + "--- " + ICON_CART + " ORDER SUMMARY ---" + RESET + "\n");
+        receiptBuilder.append(String.format("Order ID: %s\n", currentOrder.getOrderID()));
+
+        //Item List
+        for (int i = 0; i < orderItems.size(); i++) {
+            MenuItem item = orderItems.get(i);
+            String name = item.getName();
+            double itemPrice = item.calculatePrice();
+
+            //Drink size
+            String size = "";
+            if (item instanceof Drink) {
+                size = "(" + ((Drink) item).getSize() + ") ";
+            }
+
+            // display name with list number on the left
+            String fullItemName = String.format("%d. %s%s", (i + 1), size, name);
+
+            // Format the price string shown 2 decimal place
+            String priceString = String.format("$%.2f", itemPrice);
+
+            // Calculate the dots in line
+            int usedLength = fullItemName.length() + priceString.length();
+            int dotCount = LINE_WIDTH - usedLength;
+            if (dotCount < 1) { dotCount = 1; }
+            String dots = ".".repeat(dotCount);
+
+            // add Pizza details
+            if (item instanceof Pizza){
+                receiptBuilder.append(item);
+            }
+
+            // Append main item row (Name + Dots + Price)
+            receiptBuilder.append(String.format("%s %s %s%n", fullItemName, dots, priceString));
+
+            subTotal += itemPrice;
+        }
+
+        // Price Breakdown
+
+        final double TAX_RATE = 0.07;
+        double taxAmount = subTotal * TAX_RATE;
+        double finalTotal = subTotal + taxAmount;
+
+        receiptBuilder.append("-------------------------------------\n");
+        receiptBuilder.append(String.format(BOLD + "Subtotal: %s $%.2f%n" + RESET, ".".repeat(LINE_WIDTH - 12), subTotal));
+        receiptBuilder.append(String.format("Tax (%.0f%%): %s $%.2f%n", TAX_RATE * 100, ".".repeat(LINE_WIDTH - 11), taxAmount));
+        receiptBuilder.append("-------------------------------------\n");
+        receiptBuilder.append(String.format(BOLD + "TOTAL DUE: %s $%.2f%n" + RESET, ".".repeat(LINE_WIDTH - 13), finalTotal));
+        receiptBuilder.append("-------------------------------------\n");
+        receiptBuilder.append("\n" + BOLD + "Thank you for your order!" + RESET + "\n");
+
+        return receiptBuilder.toString();
+    }
 
     /**
      * Checks if the order meets the minimum purchase requirements:
@@ -819,7 +876,6 @@ public class Display {
         // If neither of the above conditions are met.
         return false;
     }
-
 
     public static void cancelOrder(){
         currentOrder.getOrderItems().clear();
