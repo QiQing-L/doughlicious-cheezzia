@@ -7,7 +7,6 @@ import java.util.List;
 
 import static com.pluralsight.doughliciouscheezzia.pos.Utility.currentOrderDateTime;
 
-
 public class Order {
     private String dateTime;
     private List<MenuItem> orderItems;

@@ -3,7 +3,9 @@ package com.pluralsight.doughliciouscheezzia;
 import com.pluralsight.doughliciouscheezzia.models.Drink;
 import com.pluralsight.doughliciouscheezzia.models.GarlicKnot;
 import com.pluralsight.doughliciouscheezzia.models.MenuItem;
+import com.pluralsight.doughliciouscheezzia.models.pizza.MargheritaPizza;
 import com.pluralsight.doughliciouscheezzia.models.pizza.Pizza;
+import com.pluralsight.doughliciouscheezzia.models.pizza.VeggiePizza;
 import com.pluralsight.doughliciouscheezzia.models.toppings.Topping;
 import com.pluralsight.doughliciouscheezzia.models.toppings.included.RegularTopping;
 import com.pluralsight.doughliciouscheezzia.models.toppings.included.Sauce;
@@ -15,6 +17,7 @@ import com.pluralsight.doughliciouscheezzia.pos.FileManager;
 import com.pluralsight.doughliciouscheezzia.pos.Order;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.pluralsight.doughliciouscheezzia.pos.Utility.generateOrderId;
 import static com.pluralsight.doughliciouscheezzia.pos.Utility.paresInt;
@@ -233,10 +236,11 @@ public class Display {
         String choice = "";
         while (!choice.equals("0")) {
             System.out.println("\n"+BOLD+ YELLOW2+"     "+ ICON_CART+ " New Order "+ICON_CART+"     "+RESET+"\n");
-            System.out.println("1) " + ICON_PIZZA + " Add Pizza ");
-            System.out.println("2) " + ICON_DRINK + " Add Drink  ");
-            System.out.println("3) " + ICON_BREAD + " Add Garlic Knots ");
-            System.out.println("4) " + ICON_CART + "Checkout");
+            System.out.println("1) " + ICON_PIZZA + " Add Custom Pizza ");
+            System.out.println("2) "+  ICON_PIZZA + " Add Signature Pizzas ⭐");
+            System.out.println("3) " + ICON_DRINK + " Add Drink  ");
+            System.out.println("4) " + ICON_BREAD + " Add Garlic Knots ");
+            System.out.println("5) " + ICON_CART + "Checkout");
             System.out.println("0) ❌ Cancel Order  ");
             System.out.print("Your choice: ");
 
@@ -244,18 +248,19 @@ public class Display {
 
 
             switch (choice) {
-                case "1" -> addPizza(scanner);
-                case "2" -> addDrink(scanner);
-                case "3" -> addGarlicKnots(scanner);
-                case "4" -> checkOut(scanner);
+                case "1" -> addCustomPizza(scanner);
+                case "2" -> addSignaturePizza(scanner);
+                case "3" -> addDrink(scanner);
+                case "4" -> addGarlicKnots(scanner);
+                case "5" -> checkOut(scanner);
                 case "0" -> cancelOrder();
-                default -> System.out.println(RED + "Invalid choice! Please enter 1 or 0." + RESET);
+                default -> System.out.println(RED + "Invalid choice! Please enter 1, 2, 3, 4, 5, or 0." + RESET);
             }
         }
 
     }
 
-    public static void addPizza(Scanner scanner){
+    public static void addCustomPizza(Scanner scanner){
         boolean done = false;
         String crust = "";
         String size = "";
@@ -585,6 +590,306 @@ public class Display {
 
     }
 
+    /**
+     * Searches the menu maps for a specific Topping by name.
+     * Used to build the topping list for signature pizzas.
+     */
+    private static Topping findToppingByName(String name) {
+        // Check included toppings
+        for (List<Topping> list : includedToppingMenu.values()) {
+            for (Topping t : list) {
+                if (t.getName().equalsIgnoreCase(name)) {
+                    return t;
+                }
+            }
+        }
+        // Check premium toppings
+        for (List<Topping> list : premiumToppingMenu.values()) {
+            for (Topping t : list) {
+                if (t.getName().equalsIgnoreCase(name)) {
+                    return t;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Builds the list of specific Topping objects required for a Signature Pizza.
+     */
+    private static List<Topping> createSignatureToppings(String pizzaType, String size) {
+        List<Topping> toppings = new ArrayList<>();
+
+        // Define the required toppings by name
+        String[] requiredToppings;
+        if (pizzaType.equals("Margherita")) {
+            requiredToppings = new String[]{"Mozzarella", "tomatoes", "basil", "marinara", "olive oil"};
+        } else if (pizzaType.equals("Veggie")) {
+            requiredToppings = new String[]{"bell peppers", "spinach", "olives", "onions", "marinara", "Mozzarella"};
+        } else {
+            return toppings;
+        }
+
+        for (String name : requiredToppings) {
+            Topping t = findToppingByName(name);
+            if (t != null) {
+                // Set size for premium toppings (Mozzarella) to ensure correct pricing.
+                if (t instanceof PremiumTopping) {
+                    ((PremiumTopping) t).setSize(size);
+                }
+                toppings.add(t);
+            } else {
+                System.err.println("Warning: Required topping not found in menu: " + name);
+            }
+        }
+        return toppings;
+    }
+
+
+    /**
+     * Creates a new instance of a Topping based on its current type and name.
+     * This prevents multiple pizzas from sharing the same static Topping object.
+     */
+    private static Topping createToppingInstance(Topping template) {
+        String name = template.getName();
+
+        if (template instanceof Meat) {
+            // Meat requires name and size (size will be set later if needed)
+            return new Meat(name, "");
+        } else if (template instanceof Cheese) {
+            // Cheese requires name and size (size will be set later if needed)
+            return new Cheese(name, "");
+        } else if (template instanceof Sauce) {
+            return new Sauce(name);
+        } else if (template instanceof RegularTopping) {
+            return new RegularTopping(name);
+        } else if (template instanceof Side) {
+            return new Side(name);
+        }
+        // Default or base Topping, although your menu seems to use subclasses.
+        return template;
+    }
+
+    public static void addSignaturePizza(Scanner scanner) {
+        System.out.println("\n" + BOLD + "⭐ Signature Pizzas " + ICON_PIZZA + RESET + "\n");
+        System.out.println("1) Margherita Pizza (12\", Regular Crust)");
+        System.out.println("2) Veggie Pizza (8\", Regular Crust)");
+        System.out.println("0) Back to Order Menu");
+        System.out.print("Your choice: ");
+
+        String choice = scanner.nextLine().trim();
+        Pizza pizza = null;
+
+        switch (choice) {
+            case "1":
+                List<Topping> margheritaToppings = createSignatureToppings("Margherita", "12");
+                pizza = new MargheritaPizza(margheritaToppings);
+                break;
+            case "2":
+                List<Topping> veggieToppings = createSignatureToppings("Veggie", "8");
+                pizza = new VeggiePizza(veggieToppings);
+                break;
+            case "0":
+                return;
+            default:
+                System.out.println(RED + "Invalid choice." + RESET);
+                return;
+        }
+
+        if (pizza != null) {
+            // Allows customization and adds to the order
+            customizePizza(scanner, pizza);
+        }
+    }
+
+    public static void customizePizza(Scanner scanner, Pizza pizza) {
+        System.out.println("\n" + BOLD + "Customizing " + pizza.getName() + " (" + pizza.getSize() + "-inch)" + RESET);
+        boolean done = false;
+
+        while (!done) {
+            // Display current toppings for context
+            List<Topping> currentToppings = pizza.getToppings();
+            String toppingList = currentToppings.isEmpty() ? "None" : currentToppings.stream().map(Topping::getName).collect(Collectors.joining(", "));
+            System.out.println("\nCurrent Toppings: " + toppingList);
+            System.out.println("\n1) Remove Topping");
+            System.out.println("2) Add New Topping");
+            System.out.println("3) Finish Customization and Add to Order");
+            System.out.print("Your choice: ");
+
+            String choice = scanner.nextLine().trim();
+
+            switch (choice) {
+                case "1":
+                    removeToppingPrompt(scanner, pizza);
+                    break;
+                case "2":
+                    addToppingPrompt(scanner, pizza);
+                    break;
+                case "3":
+                    // Finalize the order
+                    pizza.setName("pizza " + pizzaCount); // Rename for final receipt
+                    currentOrder.addItem(pizza, 1);
+                    pizzaCount++;
+                    System.out.println("Successfully added " + pizza.getName() + " to the order.");
+                    done = true;
+                    break;
+                default:
+                    System.out.println(RED + "Invalid choice." + RESET);
+            }
+        }
+    }
+
+    /**
+     * Prompts the user to select and remove a topping from the pizza.
+     */
+    public static void removeToppingPrompt(Scanner scanner, Pizza pizza) {
+        List<Topping> toppings = pizza.getToppings();
+
+        if (toppings.isEmpty()) {
+            System.out.println(YELLOW + "This pizza has no toppings to remove." + RESET);
+            return;
+        }
+
+        boolean done = false;
+        while (!done) {
+            System.out.println(BOLD + "\n➖ Select a topping to REMOVE:" + RESET);
+
+            // List toppings with indices starting from 1
+            for (int i = 0; i < toppings.size(); i++) {
+                String extra = toppings.get(i).isExtraTopping() ? " (Extra)" : "";
+                System.out.printf("%d) %s%s%n", (i + 1), toppings.get(i).getName(), extra);
+            }
+            System.out.println("0) Cancel removal");
+            System.out.print("Enter choice number: ");
+
+            String choiceInput = scanner.nextLine().trim();
+            int choice = paresInt(choiceInput);
+
+            if (choice == 0) {
+                return; // Exit removal
+            }
+
+            // Adjust index to 0-based
+            int indexToRemove = choice - 1;
+
+            if (indexToRemove >= 0 && indexToRemove < toppings.size()) {
+                Topping removedTopping = toppings.remove(indexToRemove);
+                System.out.println(GREEN + "Removed " + removedTopping.getName() + " from the pizza." + RESET);
+                done = true;
+            } else {
+                System.out.println(RED + "Invalid choice! Please enter a number from the list or 0." + RESET);
+            }
+        }
+    }
+
+    /**
+     * Prompts the user to add a single topping (Meat, Cheese, Regular, or Sauce)
+     * to an existing pizza object.
+     */
+    public static void addToppingPrompt(Scanner scanner, Pizza pizza) {
+        String size = pizza.getSize();
+        List<Topping> toppings = pizza.getToppings();
+
+        boolean done = false;
+        while (!done) {
+            System.out.println(BOLD + "\n➕ Add a New Topping:" + RESET);
+            System.out.println("1)" + ICON_MEAT + " Meat");
+            System.out.println("2)" + ICON_CHEESE + " Cheese");
+            System.out.println("3)" + ICON_TOMATO + " Regular Topping");
+            System.out.println("4) 🥫 Sauce");
+            System.out.println("0) 🔙 Back to Customization Menu");
+            System.out.print("Your choice: ");
+
+            String toppingCategoryChoice = scanner.nextLine().trim();
+            int index;
+            Map<String, List<Topping>> menuMap = null;
+            String menuKey = null;
+
+            switch (toppingCategoryChoice) {
+                case "1":
+                    menuMap = premiumToppingMenu;
+                    menuKey = "meats";
+                    break;
+                case "2":
+                    menuMap = premiumToppingMenu;
+                    menuKey = "cheeses";
+                    break;
+                case "3":
+                    menuMap = includedToppingMenu;
+                    menuKey = "regularToppings";
+                    break;
+                case "4":
+                    menuMap = includedToppingMenu;
+                    menuKey = "sauces";
+                    break;
+                case "0":
+                    return;
+                default:
+                    System.out.println(RED + "Invalid choice! Please enter 0-4." + RESET);
+                    continue;
+            }
+
+            // Display topping menu
+            if (menuMap != null && menuKey != null) {
+                System.out.println("\nSelect " + menuKey + ":");
+                displayToppingMenu(menuMap, menuKey);
+                System.out.print("Enter topping number to add: ");
+                String toppingChoice = scanner.nextLine().trim();
+                index = paresInt(toppingChoice);
+
+                if (index >= 0 && index < menuMap.get(menuKey).size()) {
+                    // Get the template topping from the static menu map
+                    Topping selectedToppingTemplate = menuMap.get(menuKey).get(index);
+
+                    Topping newToppingInstance = createToppingInstance(selectedToppingTemplate);
+
+                    //If it's Premium, set size for pricing on the new instance
+                    if (newToppingInstance instanceof PremiumTopping) {
+                        ((PremiumTopping) newToppingInstance).setSize(size);
+                    }
+
+                    // Prompt for extra
+                    if (menuKey.equals("meats") || menuKey.equals("cheeses") || menuKey.equals("regularToppings")) {
+
+                        if (promptForExtraTopping(scanner, newToppingInstance)) {
+                            newToppingInstance.setExtraTopping();
+                            System.out.println("Added extra " + newToppingInstance.getName() + ".");
+                        }
+                    }
+
+                    // Add the new Topping instance to the pizza's list
+                    toppings.add(newToppingInstance);
+                    System.out.println(GREEN + "Successfully added " + newToppingInstance.getName() + " to the pizza." + RESET);
+                    done = true;
+                } else {
+                    System.out.println(RED + "Invalid topping selection." + RESET);
+                }
+            }
+        }
+    }
+
+    /**
+     * Prompts the user for extra status on a newly created topping instance.
+     */
+    private static boolean promptForExtraTopping (Scanner scanner, Topping topping){
+        while (true) {
+            System.out.println("Add extra " + topping.getName() + "? ");
+            System.out.println("1) yes");
+            System.out.println("2) no");
+            String extraToppingChoice = scanner.nextLine().trim();
+
+            switch (extraToppingChoice){
+                case "1":
+                    return true;
+                case "2":
+                    return false;
+                default:
+                    System.out.println(RED+"Invalid choice! Please enter a number choice from above."+RESET);
+                    break;
+            }
+        }
+    }
+
     public static void addDrink(Scanner scanner){
         boolean done = false;
         String size = "";
@@ -611,6 +916,7 @@ public class Display {
         }
 
     }
+
     public static String drinkSizePrompt (Scanner scanner,String size){
         boolean done = false;
         while (!done){
@@ -641,6 +947,7 @@ public class Display {
         return size;
 
     }
+
     public static void addGarlicKnots(Scanner scanner){
         boolean done = false;
         String name;
@@ -678,7 +985,6 @@ public class Display {
             } else System.out.println(RED+"Invalid choice! Please enter a number choice from above."+RESET);
 
         }
-
     }
 
     public static void checkOut(Scanner scanner) {
