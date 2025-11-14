@@ -10,6 +10,7 @@ import com.pluralsight.doughliciouscheezzia.models.toppings.included.Sauce;
 import com.pluralsight.doughliciouscheezzia.models.toppings.included.Side;
 import com.pluralsight.doughliciouscheezzia.models.toppings.premium.Cheese;
 import com.pluralsight.doughliciouscheezzia.models.toppings.premium.Meat;
+import com.pluralsight.doughliciouscheezzia.models.toppings.premium.PremiumTopping;
 import com.pluralsight.doughliciouscheezzia.pos.Order;
 
 import java.util.*;
@@ -158,8 +159,8 @@ public class Display {
         // Drinks list:
         List<MenuItem> drinks = new ArrayList<>();
         drinks.add(new Drink("Cola",""));
-        drinks.add(new Drink("Lemon-Lime soda",""));
-        drinks.add(new Drink("Orange soda",""));
+        drinks.add(new Drink("Lemon-Lime Soda",""));
+        drinks.add(new Drink("Orange Soda",""));
         drinks.add(new Drink("Sparkling Water",""));
         drinks.add(new Drink("Water",""));
         drinks.add(new Drink("Iced Tea",""));
@@ -274,7 +275,7 @@ public class Display {
             pizzaSizePrompt(scanner,size);
 
             // prompt user for pizza toppings:
-            pizzaToppingPrompt(scanner, toppings);
+            pizzaToppingPrompt(scanner, toppings,size);
 
             // prompt user for sauce selection:
             pizzaSaucePrompt(scanner,toppings);
@@ -282,19 +283,18 @@ public class Display {
             // prompt user for optional sides:
             pizzaSideToppingPrompt(scanner,toppings);
 
+            //pizza
             String pizzaName = "pizza " + pizzaCount;
-            // for test:
-            System.out.println(pizzaName);
             Pizza pizza = new Pizza(size,crust,toppings);
             pizza.setName(pizzaName);
 
             // prompt user for optional stuffed crust:
             pizzaStuffedCrustPrompt(scanner,pizza);
 
-
             // for test:
-            System.out.println(pizza+pizza.getCrustType()+pizza.getSize()+pizza.getToppings());
-            orderItems.add(pizza);
+            System.out.println(pizza+pizza.getName()+ pizza.getCrustType()+pizza.getSize()+pizza.getToppings());
+            // add pizza to order
+            currentOrder.addItem(pizza,1);
             done = true;
 
         }
@@ -396,7 +396,7 @@ public class Display {
 
     }
 
-    public static void pizzaSizePrompt (Scanner scanner,String size){
+    public static void pizzaSizePrompt (Scanner scanner, String size){
        boolean done = false;
         while (!done){
             System.out.println(BOLD+"\n"+ICON_MEMO+ "Pizza size: "+RESET);
@@ -431,11 +431,12 @@ public class Display {
      * @param scanner for user input
      * @param toppings List of topping for the currently building pizza
      */
-    public static void pizzaToppingPrompt (Scanner scanner, List<Topping> toppings){
+    public static void pizzaToppingPrompt (Scanner scanner, List<Topping> toppings, String size){
         System.out.println(BOLD + "\n"+ICON_TOMATO + "Toppings: " +RESET);
         int index = 0;
         int counter = 0;
         boolean moveOn =false;
+        Topping selectedTopping;
         //set limit to 5 toppings max;
         while (counter < 6 && !moveOn){
             System.out.println("Maximum of 5 toppings per pizza.");
@@ -456,8 +457,10 @@ public class Display {
                     index = paresInt(meatChoice);
 
                     if (index>= 0 && index < premiumToppingMenu.get("meats").size()) {
-                        toppings.add(premiumToppingMenu.get("meats").get(index));
-                        System.out.println("successfully added " + premiumToppingMenu.get("meats").get(index).getName() + ".");
+                        selectedTopping = premiumToppingMenu.get("meats").get(index);
+                        ((PremiumTopping) selectedTopping).setSize(size);
+                        toppings.add(selectedTopping);
+                        System.out.println("successfully added " + selectedTopping.getName() + ".");
                         extraToppingPrompt(premiumToppingMenu, index, "meats", scanner);
 
                         counter++;
@@ -474,8 +477,10 @@ public class Display {
                     index = paresInt(cheeseChoice);
 
                     if (index>= 0 && index < premiumToppingMenu.get("cheeses").size()) {
-                        toppings.add(premiumToppingMenu.get("cheeses").get(index));
-                        System.out.println("successfully added " + premiumToppingMenu.get("cheeses").get(index).getName() + ".");
+                        selectedTopping =premiumToppingMenu.get("cheeses").get(index);
+                        ((PremiumTopping) selectedTopping).setSize(size);
+                        toppings.add(selectedTopping);
+                        System.out.println("successfully added " + selectedTopping.getName() + ".");
                         extraToppingPrompt(premiumToppingMenu, index, "cheeses", scanner);
 
                         counter++;
@@ -556,7 +561,7 @@ public class Display {
      * @param index input from user that match the index number of the topping of the list in display
      * @param toppingList key of the premium topping array list used in the premiumToppingList HashMap.
      * @param toppingMenu the name of the hashMap that holds the toppling list.
-     * @param scanner
+     * @param scanner scanner for user input
      */
     public static void extraToppingPrompt (Map<String, List<Topping>> toppingMenu,int index, String toppingList, Scanner scanner){
         boolean moveOn =false;
@@ -585,48 +590,88 @@ public class Display {
     }
 
     public static void addDrink(Scanner scanner){
-        String choice = "";
-        while (!choice.equals("0")) {
-            System.out.println(welcomeLine2);
-            System.out.println("1) " + ICON_PIZZA + " Add Pizza ");
-            System.out.println("2) " + ICON_DRINK + " Add Drink  ");
-            System.out.println("0) ❌ Cancel Order  ");
-            System.out.print("Your choice: ");
+        boolean done = false;
+        String size = "";
+        String name;
+        while (!done) {
+            System.out.println("\n" + BOLD + BLUE + "➕ Add drink " + ICON_DRINK + RESET + "\n");
+            for (int i = 0; i < menu.get("drinks").size(); i++) {
+                System.out.println( i + ") "+menu.get("drinks").get(i).getName());
+            }
+            String meatChoice = scanner.nextLine().trim();
+            int index = paresInt(meatChoice);
 
-            choice = scanner.nextLine().trim();
+            if (index>= 0 && index < menu.get("drinks").size()) {
+                size = drinkSizePrompt(scanner, size);
+                name = menu.get("drinks").get(index).getName();
+                Drink selectDrink = new Drink(name,size);
+                currentOrder.addItem(selectDrink,1);
 
-            switch (choice) {
-                case "1" -> System.out.println(" ");
-                case "2" -> System.out.println(" 1");
+                System.out.println("successfully added a " +selectDrink.getSize()+" "+ selectDrink.getName() + ".");
+                done = true;
+            } else System.out.println(RED+"Invalid choice! Please enter a number choice from above."+RESET);
 
-                case "0" -> System.out.println(BLUE+"Your order has been canceled. Thank you for dining with us!"+RESET);
-                default -> System.out.println(RED+"Invalid choice! Please enter 1 or 0."+RESET);
+
+        }
+
+    }
+    public static String drinkSizePrompt (Scanner scanner,String size){
+        boolean done = false;
+        while (!done){
+            System.out.println(BOLD+"\n"+ICON_MEMO+ "Drink size: "+RESET);
+            for (int i = 0; i < drinkSizes.size(); i++) {
+                System.out.println((i+1)+ ") "+drinkSizes.get(i));
+            }
+            String sizeChoice = scanner.nextLine().trim();
+
+            switch (sizeChoice) {
+                case "1":
+                    size = drinkSizes.get(0);
+                    done = true;
+                    break;
+                case "2" :
+                    size = drinkSizes.get(1);
+                    done = true;
+                    break;
+                case "3" :
+                    size = drinkSizes.get(2);
+                    done = true;
+                    break;
+                default :
+                    System.out.println(RED+"Invalid choice! Please enter 1, 2, or 3."+ RESET);
+                    break;
             }
         }
+        return size;
 
     }
     public static void addGarlicKnots(Scanner scanner){
-        String choice = "";
-        while (!choice.equals("0")) {
-            System.out.println(welcomeLine2);
-            System.out.println("1) " + ICON_PIZZA + " Add Pizza ");
-            System.out.println("2) " + ICON_DRINK + " Add Drink  ");
-            System.out.println("0) ❌ Cancel Order  ");
-            System.out.print("Your choice: ");
-
-            choice = scanner.nextLine().trim();
-
-            switch (choice) {
-                case "1" -> System.out.println(" ");
-                case "2" -> System.out.println("1 ");
-
-                case "0" -> System.out.println("Your order has been canceled. Thank you for dining with us!");
-                default -> System.out.println("Invalid choice! Please enter 1 or 0.");
+        boolean done = false;
+        String name;
+        while (!done) {
+            System.out.println("\n" + BOLD + YELLOW + "➕ Add Garlic Knots" + ICON_BREAD + RESET + "\n");
+            for (int i = 0; i < menu.get("garlicKnots").size(); i++) {
+                System.out.println( i + ") "+menu.get("garlicKnots").get(i).getName());
             }
+            String meatChoice = scanner.nextLine().trim();
+            int index = paresInt(meatChoice);
+
+            if (index>= 0 && index < menu.get("garlicKnots").size()) {
+                name = menu.get("garlicKnots").get(index).getName();
+                GarlicKnot selectGarlicKnot = new GarlicKnot(name);
+
+                System.out.println("How many "+ selectGarlicKnot.getName() + " do you want to add to the order?");
+                String quantityInput = scanner.nextLine().trim();
+                int quantity = paresInt(quantityInput);
+                currentOrder.addItem(selectGarlicKnot,quantity);
+
+                System.out.println("successfully added a "+ selectGarlicKnot.getName() + ".");
+                done = true;
+            } else System.out.println(RED+"Invalid choice! Please enter a number choice from above."+RESET);
+
         }
 
     }
-
 
 
     public static void checkOut(){
@@ -634,6 +679,7 @@ public class Display {
     }
 
     public static void cancelOrder(){
+        currentOrder.getOrderItems().clear();
         System.out.println("Your order has been canceled. Thank you for dining with us!");
 
     }
