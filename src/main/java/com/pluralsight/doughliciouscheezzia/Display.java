@@ -11,24 +11,27 @@ import com.pluralsight.doughliciouscheezzia.models.toppings.included.Side;
 import com.pluralsight.doughliciouscheezzia.models.toppings.premium.Cheese;
 import com.pluralsight.doughliciouscheezzia.models.toppings.premium.Meat;
 import com.pluralsight.doughliciouscheezzia.models.toppings.premium.PremiumTopping;
+import com.pluralsight.doughliciouscheezzia.pos.FileManager;
 import com.pluralsight.doughliciouscheezzia.pos.Order;
 
 import java.util.*;
 
+import static com.pluralsight.doughliciouscheezzia.pos.Utility.generateOrderId;
 import static com.pluralsight.doughliciouscheezzia.pos.Utility.paresInt;
 
 public class Display {
 
 
     /* -------------- Shared Data ------------------ */
-
+    private static int orderCount = 1;
     private static Map<String,List<MenuItem>> menu = new HashMap<>();
     private static Map<String, List<Topping>> premiumToppingMenu = new HashMap<>();
     private static Map<String, List<Topping>> includedToppingMenu = new HashMap<>();
     private static List<String> pizzaSizes = new ArrayList<>();
     private static List<String> drinkSizes = new ArrayList<>();
-    private static List<MenuItem> orderItems = new ArrayList<>();
-    private static Order currentOrder = new Order(orderItems);
+    private static Order currentOrder = new Order(generateOrderId(orderCount));
+    private static int pizzaCount = 1;
+
 
     /* -------------- text colors ------------------ */
     private static final String RESET = "\u001B[0m";
@@ -72,6 +75,7 @@ public class Display {
         loadMenu();
         displayMenu();
         homeScreen(scanner);
+        generateOrderId(orderCount);
 
         scanner.close();
 
@@ -246,13 +250,13 @@ public class Display {
             System.out.print("Your choice: ");
 
             choice = scanner.nextLine().trim();
-            int pizzaCount = 1;
+
 
             switch (choice) {
-                case "1" -> addPizza(scanner,pizzaCount);
+                case "1" -> addPizza(scanner);
                 case "2" -> addDrink(scanner);
                 case "3" -> addGarlicKnots(scanner);
-                case "4" -> checkOut();
+                case "4" -> checkOut(scanner);
                 case "0" -> cancelOrder();
                 default -> System.out.println(RED + "Invalid choice! Please enter 1 or 0." + RESET);
             }
@@ -260,7 +264,7 @@ public class Display {
 
     }
 
-    public static void addPizza(Scanner scanner, int pizzaCount){
+    public static void addPizza(Scanner scanner){
         boolean done = false;
         String crust = "";
         String size = "";
@@ -269,10 +273,10 @@ public class Display {
         while (!done) {
             System.out.println("\n"+BOLD+ YELLOW+ "➕ Add Pizza " + ICON_PIZZA + RESET+"\n");
             // prompt user for pizza crust type:
-            pizzaCrustPrompt(scanner,crust);
+            crust = pizzaCrustPrompt(scanner,crust);
 
             // prompt user for pizza size:
-            pizzaSizePrompt(scanner,size);
+            size = pizzaSizePrompt(scanner,size);
 
             // prompt user for pizza toppings:
             pizzaToppingPrompt(scanner, toppings,size);
@@ -291,10 +295,10 @@ public class Display {
             // prompt user for optional stuffed crust:
             pizzaStuffedCrustPrompt(scanner,pizza);
 
-            // for test:
-            System.out.println(pizza+pizza.getName()+ pizza.getCrustType()+pizza.getSize()+pizza.getToppings());
             // add pizza to order
             currentOrder.addItem(pizza,1);
+            pizzaCount++;
+            System.out.println("successfully added " + pizza.getName() + ".");
             done = true;
 
         }
@@ -362,7 +366,7 @@ public class Display {
         }
     }
 
-    public static void pizzaCrustPrompt (Scanner scanner, String crust){
+    public static String pizzaCrustPrompt (Scanner scanner, String crust){
         boolean done = false;
         while (!done){
             System.out.println(BOLD+"\n"+ICON_LOAF + " Select your crust type: "+RESET);
@@ -393,10 +397,11 @@ public class Display {
                     break;
             }
         }
+        return crust;
 
     }
 
-    public static void pizzaSizePrompt (Scanner scanner, String size){
+    public static String pizzaSizePrompt (Scanner scanner, String size){
        boolean done = false;
         while (!done){
             System.out.println(BOLD+"\n"+ICON_MEMO+ "Pizza size: "+RESET);
@@ -423,6 +428,7 @@ public class Display {
                     break;
             }
        }
+        return size;
 
     }
 
@@ -663,10 +669,22 @@ public class Display {
                 System.out.println("How many "+ selectGarlicKnot.getName() + " do you want to add to the order?");
                 String quantityInput = scanner.nextLine().trim();
                 int quantity = paresInt(quantityInput);
-                currentOrder.addItem(selectGarlicKnot,quantity);
 
-                System.out.println("successfully added a "+ selectGarlicKnot.getName() + ".");
-                done = true;
+                if (quantity >=1 && quantity < 30){
+                    currentOrder.addItem(selectGarlicKnot,quantity);
+                    System.out.println("successfully added "+quantity +" "+ selectGarlicKnot.getName() + ".");
+                    done = true;
+                } else if (quantity >= 30) {
+                    System.out.println("You are ordering more than 29 " + selectGarlicKnot.getName()
+                            +". Are you sure you want to proceed with this quantity?\n"+"1) yes \n"+"2) no");
+                    String choice = scanner.nextLine().trim();
+                    if (choice.equals("1")){
+                        currentOrder.addItem(selectGarlicKnot,quantity);
+                        System.out.println("successfully added "+quantity +" "+ selectGarlicKnot.getName() + ".");
+                        done = true;
+                    }else System.out.println("Returning back to '➕ Add Garlic Knots' Screen.");
+                } else System.out.println(RED+"Invalid number! Please enter a number quantity of at least 1."+RESET);
+
             } else System.out.println(RED+"Invalid choice! Please enter a number choice from above."+RESET);
 
         }
@@ -674,9 +692,134 @@ public class Display {
     }
 
 
-    public static void checkOut(){
+    public static void checkOut(Scanner scanner) {
+
+        if (!isValidOrder()) {
+            System.out.println("\n🚫 ERROR: Invalid Order! You must purchase at least one pizza, OR a drink/garlic knots.");
+            // Prompt user to add a required item or cancel
+            return;
+        }
+
+        if (currentOrder.getOrderItems().isEmpty()) {
+            System.out.println("Your cart is empty. Please add items before checking out.");
+            return;
+        }
+
+        double subTotal = 0.0;
+
+        System.out.println("\n" + BOLD + "--- " + ICON_CART + " ORDER SUMMARY ---" + RESET);
+
+        // Display Individual Items and Calculate Subtotal
+
+        for (int i = 0; i < currentOrder.getOrderItems().size(); i++) {
+            MenuItem item = currentOrder.getOrderItems().get(i);
+            String name = item.getName();
+            double itemPrice = item.calculatePrice();
+
+            // If the item is a Drink, cast and show the size
+            String size = "";
+            if (item instanceof Drink) {
+                size = "(" + ((Drink) item).getSize() + ") ";
+            }
+
+            // Display item row
+            System.out.printf("%d. %s%s ................... $%.2f%n",
+                    (i + 1), size, name, itemPrice);
+
+            if (item instanceof Pizza){
+                System.out.println(item);
+            }
+
+            // Accumulate the price
+            subTotal += itemPrice;
+        }
+
+        // Calculate Taxes and Final Total
+
+        // Define your tax rate (e.g., 7% sales tax)
+        final double TAX_RATE = 0.07;
+        double taxAmount = subTotal * TAX_RATE;
+        double finalTotal = subTotal + taxAmount;
+
+        // Display Price Breakdown
+        System.out.println("-------------------------------------");
+        System.out.printf(BOLD + "Subtotal: ..................... $%.2f%n" + RESET, subTotal);
+        System.out.printf("Tax (%.0f%%): .................... $%.2f%n", TAX_RATE * 100, taxAmount);
+        System.out.println("-------------------------------------");
+        System.out.printf(BOLD + "TOTAL DUE: .................... $%.2f%n" + RESET, finalTotal);
+        System.out.println("-------------------------------------");
+        System.out.println("\n" + BOLD + "Thank you for your order!" + RESET);
+
+        String choice = "";
+        while (!choice.equals("0")) {
+            System.out.println(BOLD+"\n"+ICON_CART + "Checkout"+RESET);
+            System.out.println("1) "+ICON_CART+"Confirm Order");
+            System.out.println("0) ❌ Cancel Order  ");
+            System.out.print("Your choice: ");
+
+            choice = scanner.nextLine().trim();
+
+            switch (choice) {
+                case "1":
+                    String receiptText = buildReceiptString(); // helper method
+                // Save the file
+                    FileManager.createReceiptFile(receiptText);
+                // Clear the order and go back to the home screen
+                    currentOrder = new Order(generateOrderId(orderCount++)); // Reset Order
+                    System.out.println("Returning to Home Screen...");
+                    return;
+
+                case "0" :
+                    cancelOrder();
+                    return;
+
+                default:
+                    System.out.println("Invalid choice! Please enter 1 or 0.");
+                    break;
+            }
+        }
+
 
     }
+
+
+
+
+    /**
+     * Checks if the order meets the minimum purchase requirements:
+     * 1. If 1 or more pizzas are present, the order is valid.
+     * 2. If 0 pizzas are present, a drink OR garlic knots must be present.
+     */
+    public static boolean isValidOrder() {
+        boolean hasPizza = false;
+        boolean hasNonPizzaItem = false;
+
+        for (MenuItem item : currentOrder.getOrderItems()) {
+            // Check for Pizza
+            if (item instanceof Pizza) {
+                hasPizza = true;
+            }
+
+            // Check for required non-pizza items (GarlicKnots or Drink)
+            if (item instanceof Drink || item instanceof GarlicKnot) {
+                hasNonPizzaItem = true;
+            }
+        }
+
+        // If the order has any pizza, it is valid.
+        if (hasPizza) {
+            return true;
+        }
+
+        //  If the order has NO pizza, it must have at least one required non-pizza item.
+        if (!hasPizza && hasNonPizzaItem) {
+            return true;
+        }
+
+        // If neither of the above conditions are met.
+        return false;
+    }
+
 
     public static void cancelOrder(){
         currentOrder.getOrderItems().clear();

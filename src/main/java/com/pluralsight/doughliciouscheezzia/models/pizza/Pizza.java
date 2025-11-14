@@ -4,6 +4,7 @@ import com.pluralsight.doughliciouscheezzia.models.MenuItem;
 import com.pluralsight.doughliciouscheezzia.models.toppings.Topping;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Pizza extends MenuItem {
     private String size;
@@ -74,4 +75,37 @@ public class Pizza extends MenuItem {
         double pizzaPrice = basePrice + toppingPrice;
         return pizzaPrice;
     }
+
+    @Override
+    public String toString() {
+
+        // list of topping names for a concise display,
+        // join the elements of a stream into a single String with Collectors.joining().
+        String toppingNames = toppings.stream()
+                .map(topping -> {
+                    String name = topping.getName();
+                    if (topping.isExtraTopping()) {
+                        return name + " (Extra)";
+                    }
+                    return name;
+                })
+                .collect(Collectors.joining(", "));
+
+        // crust description
+        String crustDescription = this.crustType;
+        if (this.stuffedCrust) {
+            crustDescription += " (Stuffed Crust)";
+        }
+
+        String description = String.format(
+                "   - Size: %s-inch\n" +
+                        "   - Crust: %s\n" +
+                        "   - Toppings: %s\n",
+                this.size,
+                crustDescription,
+                toppingNames.isEmpty() ? "None" : toppingNames);
+
+        return description;
+    }
+
 }

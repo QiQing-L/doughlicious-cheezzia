@@ -2,9 +2,10 @@ package com.pluralsight.doughliciouscheezzia.pos;
 
 import com.pluralsight.doughliciouscheezzia.models.MenuItem;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.pluralsight.doughliciouscheezzia.pos.Utility.currentOrderDateTime;
 
 
 public class Order {
@@ -12,8 +13,11 @@ public class Order {
     private List<MenuItem> orderItems;
     private String orderID;
 
-    public Order(List<MenuItem> orderItems) {
+    public Order(String orderID) {
         this.orderItems = new ArrayList<>();
+        this.dateTime = currentOrderDateTime();
+        this.orderID = orderID;
+
 
     }
 
@@ -33,5 +37,18 @@ public class Order {
             orderTotal += orderItem.calculatePrice();
         }
         return orderTotal;
+    }
+
+    public String getOrderID() {
+        return orderID;
+    }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "dateTime='" + dateTime + '\'' +
+                ", orderItems=" + orderItems +
+                ", orderID='" + orderID + '\'' +
+                '}';
     }
 }

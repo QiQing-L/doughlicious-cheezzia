@@ -3,7 +3,7 @@ package com.pluralsight.doughliciouscheezzia.models;
 public class GarlicKnot extends MenuItem {
 
     public GarlicKnot(String name) {
-        super("Garlic Knots - (set of 3)");
+        super(name);
     }
 
     @Override
