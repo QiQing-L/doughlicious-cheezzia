@@ -45,7 +45,7 @@ public class Display {
     private static final String ICON_CART = "\uD83D\uDED2";   // 🛒
     private static final String ICON_BREAD = "\uD83E\uDD50";  // 🥐
     private static final String ICON_FORK_PLATE_KNIFE = "\uD83C\uDF7D"; // 🍽️
-    private static final String ICON_MEAT = "\uD83E\uDD69";   // 🥩
+    private static final String ICON_MEAT = "\uD83C\uDF56";   //🍖
     private static final String ICON_CHEESE = "\uD83E\uDDC0"; // 🧀
     private static final String ICON_DRINK = "\uD83E\uDD64";  // 🥤
     private static final String ICON_LOAF ="\uD83C\uDF5E"; //🍞
@@ -305,7 +305,9 @@ public class Display {
             }
 
             // prompt user for pizza toppings:
-            System.out.println(ICON_TOMATO + "Toppings: ");
+            System.out.println(BOLD + "\n"+ICON_TOMATO + "Toppings: " +RESET);
+
+            System.out.println("\n"+ICON_MEAT+"Meats: \n");
 
             displayPremiumToppingMenu("meats");
             String meatChoice = scanner.nextLine().trim();
@@ -354,7 +356,7 @@ public class Display {
      * @param scanner
      */
     public static void extraToppingPrompt (int index, String premiumToppingList, Scanner scanner){
-            System.out.println("Add extra " + premiumToppingMenu.get(premiumToppingList).get(index).getName() + " ? " );
+            System.out.println("Add extra " + premiumToppingMenu.get(premiumToppingList).get(index).getName() + "? " );
             System.out.println("1) yes");
             System.out.println("2) no");
             String extraToppingChoice = scanner.nextLine().trim();
