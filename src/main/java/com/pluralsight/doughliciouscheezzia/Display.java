@@ -12,20 +12,22 @@ import com.pluralsight.doughliciouscheezzia.models.toppings.premium.Cheese;
 import com.pluralsight.doughliciouscheezzia.models.toppings.premium.Meat;
 import com.pluralsight.doughliciouscheezzia.pos.Order;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
+
+import static com.pluralsight.doughliciouscheezzia.pos.Utility.paresInt;
 
 public class Display {
-    private Order currentOrder;
+
 
     /* -------------- Shared Data ------------------ */
 
-    private static List<List<MenuItem>> menu = new ArrayList<>();
-    private static List<List<Topping>> premiumToppingMenu = new ArrayList<>();
-    private static List<List<Topping>> includedToppingMenu = new ArrayList<>();
+    private static Map<String,List<MenuItem>> menu = new HashMap<>();
+    private static Map<String, List<Topping>> premiumToppingMenu = new HashMap<>();
+    private static Map<String, List<Topping>> includedToppingMenu = new HashMap<>();
     private static List<String> pizzaSizes = new ArrayList<>();
     private static List<String> drinkSizes = new ArrayList<>();
+    private static List<MenuItem> orderItems = new ArrayList<>();
+    private static Order currentOrder = new Order(orderItems);
 
     /* -------------- text colors ------------------ */
     private static final String RESET = "\u001B[0m";
@@ -57,7 +59,10 @@ public class Display {
 
 
 
-
+//    public Order createOrder(List<MenuItem> orderItems){
+//        this.currentOrder = new Order(orderItems);
+//        return currentOrder;
+//    }
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -97,7 +102,7 @@ public class Display {
         regularToppings.add(new RegularTopping("pineapple"));
         regularToppings.add(new RegularTopping("anchovies"));
 
-        includedToppingMenu.add(regularToppings);
+        includedToppingMenu.put("regularToppings",regularToppings);
 
         //Sauces List:
         List<Topping> sauces = new ArrayList<>();
@@ -108,14 +113,14 @@ public class Display {
         sauces.add(new Sauce("buffalo"));
         sauces.add(new Sauce("olive oil"));
 
-        includedToppingMenu.add(sauces);
+        includedToppingMenu.put("sauces",sauces);
 
         //Sides List:
         List<Topping> sides = new ArrayList<>();
         sides.add(new Side("red pepper"));
         sides.add(new Side("parmesan"));
 
-        includedToppingMenu.add(sides);
+        includedToppingMenu.put("sides", sides);
 
         // add lists of premium toppings to premiumToppingMenu list
         // Meats List:
@@ -127,17 +132,17 @@ public class Display {
         meats.add(new Meat("chicken",""));
         meats.add(new Meat("meatball",""));
 
-        premiumToppingMenu.add(meats);
+        premiumToppingMenu.put("meats", meats);
 
         //Cheese List:
-        List<Topping> cheeseList = new ArrayList<>();
-        cheeseList.add(new Cheese("Mozzarella",""));
-        cheeseList.add(new Cheese("Parmesan",""));
-        cheeseList.add(new Cheese("Ricotta",""));
-        cheeseList.add(new Cheese("Goat Cheese",""));
-        cheeseList.add(new Cheese("Buffalo",""));
+        List<Topping> cheeses = new ArrayList<>();
+        cheeses.add(new Cheese("Mozzarella",""));
+        cheeses.add(new Cheese("Parmesan",""));
+        cheeses.add(new Cheese("Ricotta",""));
+        cheeses.add(new Cheese("Goat Cheese",""));
+        cheeses.add(new Cheese("Buffalo",""));
 
-        premiumToppingMenu.add(cheeseList);
+        premiumToppingMenu.put("cheeses", cheeses);
         // add drinks list and Garlic Knots List to Menu List
         //Garlic Knots List:
         List<MenuItem> garlicKnots = new ArrayList<>();
@@ -146,7 +151,7 @@ public class Display {
         garlicKnots.add(new GarlicKnot("Spicy Garlic Knots"));
         garlicKnots.add(new GarlicKnot("Herby Garlic Knots"));
 
-        menu.add(garlicKnots);
+        menu.put("garlicKnots", garlicKnots);
 
         // Drinks list:
         List<MenuItem> drinks = new ArrayList<>();
@@ -158,7 +163,7 @@ public class Display {
         drinks.add(new Drink("Iced Tea",""));
         drinks.add(new Drink("Lemonade",""));
 
-        menu.add(drinks);
+        menu.put("drinks", drinks);
 
     }
 
@@ -209,7 +214,7 @@ public class Display {
     public static void homeScreen(Scanner scanner){
         String choice = "";
         while (!choice.equals("0")) {
-            System.out.println(welcomeLine2);
+            System.out.println(welcomeLine2+"\n");
             System.out.println("1) "+ICON_CART+"New Order ");
             System.out.println("0) ❌Exit ");
             System.out.print("Your choice: ");
@@ -226,9 +231,10 @@ public class Display {
     }
 
     public static void orderScreen(Scanner scanner){
+
         String choice = "";
         while (!choice.equals("0")) {
-            System.out.println(welcomeLine2);
+            System.out.println("\n"+BOLD+ YELLOW2+"     "+ ICON_CART+ " New Order "+ICON_CART+"     "+RESET+"\n");
             System.out.println("1) " + ICON_PIZZA + " Add Pizza ");
             System.out.println("2) " + ICON_DRINK + " Add Drink  ");
             System.out.println("3) " + ICON_BREAD + " Add Garlic Knots ");
@@ -244,7 +250,6 @@ public class Display {
                 case "3" -> addGarlicKnots(scanner);
                 case "4" -> checkOut();
                 case "0" -> cancelOrder();
-                        System.out.println("Your order has been canceled. Thank you for dining with us!");
                 default -> System.out.println("Invalid choice! Please enter 1 or 0.");
             }
         }
@@ -258,7 +263,7 @@ public class Display {
         List<Topping> toppings = new ArrayList<>();
 
         while (!done) {
-            System.out.println(BOLD+ ICON_PIZZA + YELLOW+ "➕ Add Pizza " + ICON_PIZZA + RESET);
+            System.out.println("\n"+BOLD+ YELLOW+ "➕ Add Pizza " + ICON_PIZZA + RESET+"\n");
             // prompt user for pizza crust type:
             System.out.println(ICON_LOAF + " Select your crust type: ");
             System.out.println("1) thin" + ICON_FLATBREAD);
@@ -300,11 +305,28 @@ public class Display {
             }
 
             // prompt user for pizza toppings:
+            System.out.println(ICON_TOMATO + "Toppings: ");
 
+            for (int i = 0; i < premiumToppingMenu.get("meats").size(); i++) {
+                System.out.println((i+1)+ ") "+premiumToppingMenu.get("meats").get(i).getName());
+            }
+            String meatChoice = scanner.nextLine().trim();
+            int meatInex = paresInt(meatChoice);
+
+            if (meatInex<premiumToppingMenu.get("meats").size())
+
+            switch (meatChoice) {
+                case "1" -> toppings.add(premiumToppingMenu.get("meats").get(0));
+                case "2" -> toppings.add(premiumToppingMenu.get("meats").get(1));
+                case "3" -> toppings.add(premiumToppingMenu.get("meats").get(2));
+                default -> System.out.println("Invalid choice! Please enter a number choice.");
+            }
 
 
 
             Pizza pizza = new Pizza(size,crust,toppings);
+            System.out.println(pizza+pizza.getCrustType()+pizza.getSize()+pizza.getToppings());
+            //orderItems.add(new Pizza(size,crust,toppings);
             done = true;
 
 
@@ -324,8 +346,8 @@ public class Display {
             choice = scanner.nextLine().trim();
 
             switch (choice) {
-                case "1" -> (scanner);
-                case "2" ->
+                case "1" -> System.out.println(" ");
+                case "2" -> System.out.println(" 1");
 
                 case "0" -> System.out.println("Your order has been canceled. Thank you for dining with us!");
                 default -> System.out.println("Invalid choice! Please enter 1 or 0.");
@@ -345,8 +367,8 @@ public class Display {
             choice = scanner.nextLine().trim();
 
             switch (choice) {
-                case "1" -> (scanner);
-                case "2" ->
+                case "1" -> System.out.println(" ");
+                case "2" -> System.out.println("1 ");
 
                 case "0" -> System.out.println("Your order has been canceled. Thank you for dining with us!");
                 default -> System.out.println("Invalid choice! Please enter 1 or 0.");
@@ -355,15 +377,14 @@ public class Display {
 
     }
 
-    public Order createOrder(Scanner scanner){
-        return this.currentOrder;
-    }
 
-    public static void checkOut(Order order){
+
+    public static void checkOut(){
 
     }
 
-    public static void cancelOrder(Order order){
+    public static void cancelOrder(){
+        System.out.println("Your order has been canceled. Thank you for dining with us!");
 
     }
 }
