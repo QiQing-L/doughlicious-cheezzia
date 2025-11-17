@@ -238,7 +238,7 @@ public class Display {
             System.out.println("2) "+  ICON_PIZZA + " Add Signature Pizzas ⭐");
             System.out.println("3) " + ICON_DRINK + " Add Drink  ");
             System.out.println("4) " + ICON_BREAD + " Add Garlic Knots ");
-            System.out.println("5) " + ICON_CART + "Checkout");
+            System.out.println("5) " + ICON_CART + " Checkout");
             System.out.println("0) ❌ Cancel Order  ");
             System.out.print("Your choice: ");
 
@@ -798,7 +798,7 @@ public class Display {
             System.out.println("1)" + ICON_MEAT + " Meat");
             System.out.println("2)" + ICON_CHEESE + " Cheese");
             System.out.println("3)" + ICON_TOMATO + " Regular Topping");
-            System.out.println("4) 🥫 Sauce");
+            System.out.println("4)🥫 Sauce");
             System.out.println("0) 🔙 Back to Customization Menu");
             System.out.print("Your choice: ");
 
@@ -1038,8 +1038,7 @@ public class Display {
         }
 
         // Calculate Taxes and Final Total
-
-        // Define your tax rate (e.g., 7% sales tax)
+        // Define tax rate ( 7% sales tax)
         final double TAX_RATE = 0.07;
         double taxAmount = subTotal * TAX_RATE;
         double finalTotal = subTotal + taxAmount;
@@ -1101,7 +1100,7 @@ public class Display {
         double subTotal = 0.0;
 
         //Header
-        receiptBuilder.append("\n" + BOLD + "--- " + ICON_CART + " ORDER SUMMARY ---" + RESET + "\n");
+        receiptBuilder.append("\n" + "--- " + ICON_CART + " ORDER SUMMARY ---" + "\n");
         receiptBuilder.append(String.format("Order ID: %s\n", currentOrder.getOrderID()));
 
         //Item List
@@ -1146,12 +1145,12 @@ public class Display {
         double finalTotal = subTotal + taxAmount;
 
         receiptBuilder.append("-------------------------------------\n");
-        receiptBuilder.append(String.format(BOLD + "Subtotal: %s $%.2f%n" + RESET, ".".repeat(LINE_WIDTH - 12), subTotal));
+        receiptBuilder.append(String.format("Subtotal: %s $%.2f%n", ".".repeat(LINE_WIDTH - 12), subTotal));
         receiptBuilder.append(String.format("Tax (%.0f%%): %s $%.2f%n", TAX_RATE * 100, ".".repeat(LINE_WIDTH - 11), taxAmount));
         receiptBuilder.append("-------------------------------------\n");
-        receiptBuilder.append(String.format(BOLD + "TOTAL DUE: %s $%.2f%n" + RESET, ".".repeat(LINE_WIDTH - 13), finalTotal));
+        receiptBuilder.append(String.format("TOTAL DUE: %s $%.2f%n", ".".repeat(LINE_WIDTH - 13), finalTotal));
         receiptBuilder.append("-------------------------------------\n");
-        receiptBuilder.append("\n" + BOLD + "Thank you for your order!" + RESET + "\n");
+        receiptBuilder.append("\n Thank you for your order! \n");
 
         return receiptBuilder.toString();
     }
